@@ -1,0 +1,18 @@
+{
+    "data": [
+        {
+            "id": "id001",
+            "type": "step001",
+            "attributes": {},
+            "relationships": {}
+        }
+    ],
+    "meta": {
+        "current_page": 0,
+        "next_page": 0,
+        "page_count": 0,
+        "prev_page": 0,
+        "total_count": 1
+    },
+    "jsonapi": {}
+}
