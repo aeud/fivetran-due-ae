@@ -62,13 +62,15 @@ func (client *DUEAPIClient) ExecuteState(state *fivetranio.State) (data []map[st
 
 	step, exists := availableSteps[currentStepName]
 	if !exists {
-		err = fmt.Errorf("no matching step")
+		log.Printf("missing step `%s`, skipping\n", currentStepName)
+		data = make([]map[string]interface{}, 0)
+		nextState, hasMore, _ = state.NextStep()
 		return
 	}
 
 	url := step.URLGenerator(pageNumber)
 
-	pageSize := state.PageSize
+	pageSize := step.PageSize
 	if pageSize == 0 {
 		pageSize = DefaultPageSize
 	}

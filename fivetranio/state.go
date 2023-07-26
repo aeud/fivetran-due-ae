@@ -12,7 +12,6 @@ type State struct {
 	NextPageNumber int                `json:"next_page_number"`
 	Cursors        map[string]*Cursor `json:"cursors,omitempty"`
 	RemainingSteps []string           `json:"remaining_steps"`
-	PageSize       int                `json:"page_size"`
 }
 
 func NewStateFromReader(r io.Reader, allSteps []string) (*State, error) {
@@ -21,7 +20,7 @@ func NewStateFromReader(r io.Reader, allSteps []string) (*State, error) {
 		return nil, err
 	}
 	if v.CurrentStep == "" {
-		if err := v.Reset(allSteps, 0); err != nil {
+		if err := v.Reset(allSteps); err != nil {
 			return nil, err
 		}
 	}
@@ -33,7 +32,7 @@ func NewStateFromJson(data []byte, allSteps []string) (*State, error) {
 		return nil, err
 	}
 	if v.CurrentStep == "" {
-		if err := v.Reset(allSteps, 0); err != nil {
+		if err := v.Reset(allSteps); err != nil {
 			return nil, err
 		}
 	}
@@ -64,7 +63,6 @@ func (s *State) NextPage(pageNumber int) (*State, bool, error) {
 		Cursors:        s.Cursors,
 		NextPageNumber: pageNumber,
 		RemainingSteps: s.RemainingSteps,
-		PageSize:       s.PageSize,
 	}
 	return ns, true, nil
 }
@@ -76,7 +74,6 @@ func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 			Cursors:        s.Cursors,
 			NextPageNumber: 0,
 			RemainingSteps: []string{},
-			PageSize:       s.PageSize,
 		}
 		hasMore = false
 	} else {
@@ -85,7 +82,6 @@ func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 			Cursors:        s.Cursors,
 			NextPageNumber: 1,
 			RemainingSteps: s.RemainingSteps[1:],
-			PageSize:       s.PageSize,
 		}
 		hasMore = true
 	}
@@ -104,11 +100,10 @@ func (s *State) IncrementPage() (*State, bool, error) {
 		Cursors:        s.Cursors,
 		NextPageNumber: s.NextPageNumber + 1,
 		RemainingSteps: s.RemainingSteps,
-		PageSize:       s.PageSize,
 	}, true, nil
 }
 
-func (s *State) Reset(steps []string, pageSize int) error {
+func (s *State) Reset(steps []string) error {
 	allSteps := steps
 	if allSteps == nil || len(allSteps) < 1 {
 		return fmt.Errorf("you should define at least one entitiy to collect in the secrets")
@@ -116,7 +111,6 @@ func (s *State) Reset(steps []string, pageSize int) error {
 	s.CurrentStep = allSteps[0]
 	s.NextPageNumber = 1
 	s.RemainingSteps = allSteps[1:]
-	s.PageSize = pageSize
 	return nil
 }
 

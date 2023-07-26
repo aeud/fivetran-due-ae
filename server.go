@@ -37,7 +37,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	// Initial state
 	if state.CurrentStep == "" {
-		if err := state.Reset(workEntities, secrets.PageSize); err != nil {
+		if err := state.Reset(workEntities); err != nil {
 			fivetranio.NewFivetranCloudFunctionErrorResponse(err.Error()).Send(w)
 			return
 		}
