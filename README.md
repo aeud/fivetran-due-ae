@@ -20,7 +20,7 @@ gcloud run services add-iam-policy-binding CLOUD_RUN_SERVICE_NAME \
 ## Secret
 
 ```
-{"api_key": "KEY_HERE", "entities": ["answer_sets", "surveys"], "page_size": 100}
+{"api_key": "KEY_HERE", "entities": ["answer_sets", "surveys"]}
 ```
 
 ### List of available entities
@@ -28,10 +28,4 @@ gcloud run services add-iam-policy-binding CLOUD_RUN_SERVICE_NAME \
 - `clients`
 - `answer_sets`
 - `surveys`
-- `feedbacks`
-
-### Page size
-
-You do not have to precise a page size. This argument will be used to paginate. 100 seems a good candidate.
-
-TODO: make 100 a default value. Eventually remove the parameter.
+- ~~`feedbacks`~~

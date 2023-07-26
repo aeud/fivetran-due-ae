@@ -1,5 +1,7 @@
 package dueio
 
+import "time"
+
 type Step struct {
 	Name            string
 	UseCursor       bool
@@ -7,6 +9,7 @@ type Step struct {
 	MinCursorValue  string
 	URLGenerator    URLGenerator
 	PrimaryKey      string
+	PageSize        int
 }
 
 func GetAvailableSteps() map[string]Step {
@@ -17,26 +20,32 @@ func GetAvailableSteps() map[string]Step {
 			CursorAttribute: "updated_at",
 			URLGenerator:    GetAnswerSetsURL,
 			PrimaryKey:      "id",
+			MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Format("2006-01"),
+			PageSize:        100,
 		},
 		DUEClientsLabel: {
 			Name:         DUEClientsLabel,
 			UseCursor:    false,
 			URLGenerator: GetClientsURL,
 			PrimaryKey:   "id",
+			PageSize:     10000,
 		},
 		DUECSurveysLabel: {
 			Name:         DUECSurveysLabel,
 			UseCursor:    false,
 			URLGenerator: GetSurveysURL,
 			PrimaryKey:   "id",
+			PageSize:     100,
 		},
-		DUECFeedbacksLabel: {
-			Name:            DUECFeedbacksLabel,
-			UseCursor:       true,
-			CursorAttribute: "updated-at",
-			URLGenerator:    GetFeedbacksURL,
-			PrimaryKey:      "id",
-		},
+		// DUECFeedbacksLabel: {
+		// 	Name:            DUECFeedbacksLabel,
+		// 	UseCursor:       true,
+		// 	CursorAttribute: "updated-at",
+		// 	URLGenerator:    GetFeedbacksURL,
+		// 	PrimaryKey:      "id",
+		// 	MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Format("2006-01"),
+		// 	PageSize:        100,
+		// },
 	}
 }
 
