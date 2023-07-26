@@ -4,7 +4,7 @@ import (
 	"due/fivetranio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
@@ -36,7 +36,7 @@ func (client *DUEAPIClient) DoRequest(req *http.Request) (*DUEHttpResponse, erro
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		bs, _ := ioutil.ReadAll(resp.Body)
+		bs, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("api response error %d (%s)", resp.StatusCode, bs)
 	}
 	defer resp.Body.Close()
