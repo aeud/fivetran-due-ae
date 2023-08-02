@@ -6,46 +6,39 @@ type Step struct {
 	Name            string
 	UseCursor       bool
 	CursorAttribute string
+	FilterAttribute string
 	MinCursorValue  string
-	URLGenerator    URLGenerator
+	APIEnpointURL   *APIEndpointURL
 	PrimaryKey      string
 	PageSize        int
 }
 
 func GetAvailableSteps() map[string]Step {
 	return map[string]Step{
-		DUECAnswerSetsLabel: {
-			Name:            DUECAnswerSetsLabel,
+		DUEAnswerSetsLabel: {
+			Name:            DUEAnswerSetsLabel,
 			UseCursor:       true,
 			CursorAttribute: "updated_at",
-			URLGenerator:    GetAnswerSetsURL,
+			FilterAttribute: "start_updated_date",
+			APIEnpointURL:   NewAnswerSetsAPIEnpointURL(),
 			PrimaryKey:      "id",
-			MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Format("2006-01"),
+			MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Format("2006-01-02T00:00:00.000Z"), // 2 years from now
 			PageSize:        100,
 		},
-		DUEClientsLabel: {
-			Name:         DUEClientsLabel,
-			UseCursor:    false,
-			URLGenerator: GetClientsURL,
-			PrimaryKey:   "id",
-			PageSize:     10000,
-		},
-		DUECSurveysLabel: {
-			Name:         DUECSurveysLabel,
-			UseCursor:    false,
-			URLGenerator: GetSurveysURL,
-			PrimaryKey:   "id",
-			PageSize:     100,
-		},
-		// DUECFeedbacksLabel: {
-		// 	Name:            DUECFeedbacksLabel,
-		// 	UseCursor:       true,
-		// 	CursorAttribute: "updated-at",
-		// 	URLGenerator:    GetFeedbacksURL,
-		// 	PrimaryKey:      "id",
-		// 	MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Format("2006-01"),
-		// 	PageSize:        100,
+		// DUEClientsLabel: {
+		// 	Name:          DUEClientsLabel,
+		// 	UseCursor:     false,
+		// 	APIEnpointURL: NewClientsAPIEnpointURL(),
+		// 	PrimaryKey:    "id",
+		// 	PageSize:      10000,
 		// },
+		DUESurveysLabel: {
+			Name:          DUESurveysLabel,
+			UseCursor:     false,
+			APIEnpointURL: NewSurveysAPIEnpointURL(),
+			PrimaryKey:    "id",
+			PageSize:      100,
+		},
 	}
 }
 
