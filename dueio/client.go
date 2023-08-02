@@ -47,8 +47,8 @@ func (client *DUEAPIClient) DoRequest(req *http.Request) (*DUEHttpResponse, erro
 	return &v, nil
 }
 
-func (client *DUEAPIClient) Collect(url string) (*DUEHttpResponse, error) {
-	req, err := client.NewGetRequest(url)
+func (client *DUEAPIClient) Collect(endpointURL *APIEndpointURL) (*DUEHttpResponse, error) {
+	req, err := client.NewGetRequest(endpointURL.String())
 	if err != nil {
 		return nil, err
 	}
@@ -68,43 +68,42 @@ func (client *DUEAPIClient) ExecuteState(state *fivetranio.State) (data []map[st
 		return
 	}
 
-	url := step.URLGenerator(pageNumber)
+	u := step.APIEnpointURL
+	u.AddPageNumberParameter(pageNumber)
 
 	pageSize := step.PageSize
 	if pageSize == 0 {
 		pageSize = DefaultPageSize
 	}
-	url = AddPagSizeParameter(url, pageSize)
+	u.AddPageSizeParameter(pageSize)
 
-	resp, err := client.Collect(url)
+	if step.UseCursor {
+		if v := state.GetCursorNextValue(step.Name); v != "" {
+			u.AddFilterParameter(step.FilterAttribute, v)
+		} else if step.MinCursorValue != "" {
+			u.AddFilterParameter(step.FilterAttribute, step.MinCursorValue)
+		}
+		u.AddSortParameter(step.CursorAttribute, true) // Last element to fetch will be the latest updated
+	}
+
+	resp, err := client.Collect(u)
 	if err != nil {
 		return
 	}
 
 	// Build the `next state`
-
-	cursorTest := false // assumes there is no cursor
-	if step.UseCursor {
-		if pageNumber == 1 {
-			firstElement := resp.Data[0]
-			targetCursor := firstElement.Attributes[step.CursorAttribute]
-			state.SetTargetCursor(step.Name, fmt.Sprintf("%v", targetCursor))
-		}
-		lastElement := resp.Data[len(resp.Data)-1]
-		lastCursorVal := lastElement.Attributes[step.CursorAttribute]
-		if state.IsLowerThanCurrentCursor(step.Name, lastCursorVal) || fmt.Sprintf("%v", lastCursorVal) < step.MinCursorValue {
-			cursorTest = true
-		}
-	}
-
-	if p := resp.Meta.NextPage; p > 0 && !cursorTest {
+	if p := resp.Meta.NextPage; p > 0 {
 		nextState, hasMore, _ = state.NextPage(p)
 	} else {
-		state.CloseCursor(step.Name)
+		if step.UseCursor && len(resp.Data) > 0 {
+			lastElement := resp.Data[len(resp.Data)-1]
+			lastCursorVal := lastElement.Attributes[step.CursorAttribute]
+			state.SetCursorNextValue(step.Name, fmt.Sprintf("%v", lastCursorVal))
+		}
 		nextState, hasMore, _ = state.NextStep()
 	}
 
-	// Build the `data`` payload
+	// Build the `data` payload
 	data = make([]map[string]interface{}, len(resp.Data))
 	for i, row := range resp.Data {
 		data[i] = row.Attributes
