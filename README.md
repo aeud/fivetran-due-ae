@@ -25,7 +25,7 @@ gcloud run services add-iam-policy-binding CLOUD_RUN_SERVICE_NAME \
 
 ### List of available entities
 
-- `clients`
+- ~~`clients`~~
 - `answer_sets`
 - `surveys`
 - ~~`feedbacks`~~
