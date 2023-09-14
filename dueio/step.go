@@ -22,7 +22,7 @@ func GetAvailableSteps() map[string]Step {
 			FilterAttribute: "start_updated_date",
 			APIEnpointURL:   NewAnswerSetsAPIEnpointURL(),
 			PrimaryKey:      "id",
-			MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Format("2006-01-02T00:00:00.000Z"), // 2 years from now
+			MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 2 years from now
 			PageSize:        100,
 		},
 		// DUEClientsLabel: {
