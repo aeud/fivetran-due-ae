@@ -3,48 +3,20 @@ package fivetranio
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 )
 
+const CurrentStateVersion = "state1.0.0"
+
 type State struct {
-	CurrentStep    string             `json:"current_step"`
-	NextPageNumber int                `json:"next_page_number"`
-	Cursors        map[string]*Cursor `json:"cursors,omitempty"`
-	RemainingSteps []string           `json:"remaining_steps"`
+	Version         string             `json:"version"`
+	CurrentStep     string             `json:"current_step"`
+	StepProgression string             `json:"step_progression"`
+	NextPageNumber  int                `json:"next_page_number"`
+	Cursors         map[string]*Cursor `json:"cursors,omitempty"`
+	RemainingSteps  []string           `json:"remaining_steps"`
 }
 
-func NewStateFromReader(r io.Reader, allSteps []string) (*State, error) {
-	var v State
-	if err := json.NewDecoder(r).Decode(&v); err != nil {
-		return nil, err
-	}
-	if v.CurrentStep == "" {
-		if err := v.Reset(allSteps); err != nil {
-			return nil, err
-		}
-	}
-	return &v, nil
-}
-func NewStateFromJson(data []byte, allSteps []string) (*State, error) {
-	var v State
-	if err := json.Unmarshal(data, &v); err != nil {
-		return nil, err
-	}
-	if v.CurrentStep == "" {
-		if err := v.Reset(allSteps); err != nil {
-			return nil, err
-		}
-	}
-	return &v, nil
-}
-func NewStateFromJsonOrPanic(data []byte, allSteps []string) *State {
-	s, err := NewStateFromJson(data, allSteps)
-	if err != nil {
-		panic(err)
-	}
-	return s
-}
 func (s *State) MarshalForce() []byte {
 	bs, err := json.Marshal(s)
 	if err != nil {
@@ -57,12 +29,14 @@ func (s *State) LogContent() {
 	log.Printf("%s\n", s.MarshalForce())
 }
 
-func (s *State) NextPage(pageNumber int) (*State, bool, error) {
+func (s *State) NextPage(pageNumber, totalPageNumber int) (*State, bool, error) {
 	ns := &State{
-		CurrentStep:    s.CurrentStep,
-		Cursors:        s.Cursors,
-		NextPageNumber: pageNumber,
-		RemainingSteps: s.RemainingSteps,
+		Version:         s.Version,
+		CurrentStep:     s.CurrentStep,
+		Cursors:         s.Cursors,
+		StepProgression: fmt.Sprintf("%d/%d", pageNumber-1, totalPageNumber),
+		NextPageNumber:  pageNumber,
+		RemainingSteps:  s.RemainingSteps,
 	}
 	return ns, true, nil
 }
@@ -70,6 +44,7 @@ func (s *State) NextPage(pageNumber int) (*State, bool, error) {
 func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 	if len(s.RemainingSteps) == 0 {
 		newState = &State{
+			Version:        s.Version,
 			CurrentStep:    "",
 			Cursors:        s.Cursors,
 			NextPageNumber: 0,
@@ -78,6 +53,7 @@ func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 		hasMore = false
 	} else {
 		newState = &State{
+			Version:        s.Version,
 			CurrentStep:    s.RemainingSteps[0],
 			Cursors:        s.Cursors,
 			NextPageNumber: 1,
@@ -88,21 +64,6 @@ func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 	return
 }
 
-func (s *State) IncrementPage() (*State, bool, error) {
-	if len(s.RemainingSteps) == 0 {
-		return nil, false, nil
-	}
-	if s.CurrentStep == "" {
-		return s.NextStep()
-	}
-	return &State{
-		CurrentStep:    s.CurrentStep,
-		Cursors:        s.Cursors,
-		NextPageNumber: s.NextPageNumber + 1,
-		RemainingSteps: s.RemainingSteps,
-	}, true, nil
-}
-
 func (s *State) Reset(steps []string) error {
 	allSteps := steps
 	if allSteps == nil || len(allSteps) < 1 {
@@ -111,6 +72,7 @@ func (s *State) Reset(steps []string) error {
 	s.CurrentStep = allSteps[0]
 	s.NextPageNumber = 1
 	s.RemainingSteps = allSteps[1:]
+	s.Version = CurrentStateVersion
 	return nil
 }
 

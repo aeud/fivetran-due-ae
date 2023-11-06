@@ -3,27 +3,32 @@ package dueio
 import "time"
 
 type Step struct {
-	Name            string
-	UseCursor       bool
-	CursorAttribute string
-	FilterAttribute string
-	MinCursorValue  string
-	APIEnpointURL   *APIEndpointURL
-	PrimaryKey      string
-	PageSize        int
+	Name                string
+	UseCursor           bool
+	CursorAttribute     string
+	FilterAttribute     string
+	InitFilterAttribute string
+	SortAttribute       string
+	MinCursorValue      string
+	APIEnpointURL       *APIEndpointURL
+	PrimaryKey          string
+	PageSize            int
 }
 
 func GetAvailableSteps() map[string]Step {
 	return map[string]Step{
 		DUEAnswerSetsLabel: {
-			Name:            DUEAnswerSetsLabel,
-			UseCursor:       true,
-			CursorAttribute: "updated_at",
-			FilterAttribute: "start_updated_date",
-			APIEnpointURL:   NewAnswerSetsAPIEnpointURL(),
-			PrimaryKey:      "id",
-			MinCursorValue:  time.Now().Add(-2 * 365 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 2 years from now
-			PageSize:        100,
+			Name:                DUEAnswerSetsLabel,
+			UseCursor:           true,
+			CursorAttribute:     "updated_at",
+			FilterAttribute:     "start_updated_date",
+			InitFilterAttribute: "start_date",
+			SortAttribute:       "created_at",
+			APIEnpointURL:       NewAnswerSetsAPIEnpointURL(),
+			PrimaryKey:          "id",
+			// MinCursorValue:      time.Now().Add(-2 * 365 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 2 years from now
+			MinCursorValue: time.Now().Add(-2 * 93 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 93 days from now
+			PageSize:       100,
 		},
 		// DUEClientsLabel: {
 		// 	Name:          DUEClientsLabel,
