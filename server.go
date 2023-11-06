@@ -4,6 +4,7 @@ import (
 	"due/dueio"
 	"due/fivetranio"
 	"net/http"
+	"os"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +50,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	availableSteps := dueio.GetAvailableSteps()
 	for _, e := range workEntities {
 		fivetranResp.AddPrimaryKey(e, availableSteps[e].PrimaryKey)
+	}
+
+	if r.URL.Query().Has("debug") || os.Getenv("DEBUG") == "Y" {
+		state.Debug = true
 	}
 
 	data, nextState, hasMore, err := DUEClient.ExecuteState(state)

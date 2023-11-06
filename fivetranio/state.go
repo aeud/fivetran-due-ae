@@ -9,6 +9,7 @@ import (
 const CurrentStateVersion = "state1.0.0"
 
 type State struct {
+	Debug           bool               // Debug will be used to shorten the pagination. It will only keep the first 10 pages for each entity
 	Version         string             `json:"version"`
 	CurrentStep     string             `json:"current_step"`
 	StepProgression string             `json:"step_progression"`

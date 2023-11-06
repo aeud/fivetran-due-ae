@@ -92,7 +92,7 @@ func (client *DUEAPIClient) ExecuteState(state *fivetranio.State) (data []map[st
 	}
 
 	// Build the `next state`
-	if p := resp.Meta.NextPage; p > 0 {
+	if p := resp.Meta.NextPage; p > 0 && (!state.Debug || p < 10) {
 		nextState, hasMore, _ = state.NextPage(p, resp.Meta.PageCount)
 	} else {
 		if step.UseCursor && len(resp.Data) > 0 {
