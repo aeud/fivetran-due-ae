@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-const CurrentStateVersion = "state1.0.1"
+const CurrentStateVersion = "state1.0.2"
 
 type State struct {
 	Debug           bool               `json:"debug"` // Debug will be used to shorten the pagination. It will only read the first page.
