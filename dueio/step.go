@@ -22,8 +22,8 @@ func GetAvailableSteps() map[string]Step {
 			UseCursor:           true,
 			CursorAttribute:     "updated_at",
 			FilterAttribute:     "start_updated_date",
-			InitFilterAttribute: "start_date",
-			SortAttribute:       "created_at",
+			InitFilterAttribute: "start_updated_date",
+			SortAttribute:       "updated_at",
 			APIEnpointURL:       NewAnswerSetsAPIEnpointURL(),
 			PrimaryKey:          "id",
 			// MinCursorValue:      time.Now().Add(-2 * 365 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 2 years from now

@@ -6,10 +6,10 @@ import (
 	"log"
 )
 
-const CurrentStateVersion = "state1.0.0"
+const CurrentStateVersion = "state1.0.1"
 
 type State struct {
-	Debug           bool               `json:"debug"` // Debug will be used to shorten the pagination. It will only keep the first 10 pages for each entity
+	Debug           bool               `json:"debug"` // Debug will be used to shorten the pagination. It will only read the first page.
 	Version         string             `json:"version"`
 	CurrentStep     string             `json:"current_step"`
 	StepProgression string             `json:"step_progression"`
@@ -30,9 +30,23 @@ func (s *State) LogContent() {
 	log.Printf("%s\n", s.MarshalForce())
 }
 
+func (s *State) NextPageWithCursor(totalPageNumber int) (*State, bool, error) {
+	ns := &State{
+		Version:         s.Version,
+		Debug:           s.Debug,
+		CurrentStep:     s.CurrentStep,
+		Cursors:         s.Cursors,
+		StepProgression: fmt.Sprintf("Remaining: %d", totalPageNumber),
+		NextPageNumber:  1,
+		RemainingSteps:  s.RemainingSteps,
+	}
+	return ns, true, nil
+}
+
 func (s *State) NextPage(pageNumber, totalPageNumber int) (*State, bool, error) {
 	ns := &State{
 		Version:         s.Version,
+		Debug:           s.Debug,
 		CurrentStep:     s.CurrentStep,
 		Cursors:         s.Cursors,
 		StepProgression: fmt.Sprintf("%d/%d", pageNumber-1, totalPageNumber),
@@ -46,6 +60,7 @@ func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 	if len(s.RemainingSteps) == 0 {
 		newState = &State{
 			Version:        s.Version,
+			Debug:          s.Debug,
 			CurrentStep:    "",
 			Cursors:        s.Cursors,
 			NextPageNumber: 0,
@@ -55,6 +70,7 @@ func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 	} else {
 		newState = &State{
 			Version:        s.Version,
+			Debug:          s.Debug,
 			CurrentStep:    s.RemainingSteps[0],
 			Cursors:        s.Cursors,
 			NextPageNumber: 1,
@@ -88,4 +104,7 @@ func (s *State) GetAllCursors() []*Cursor {
 		i++
 	}
 	return allCursors
+}
+func (s *State) ResetAllCursors() {
+	s.Cursors = map[string]*Cursor{}
 }
