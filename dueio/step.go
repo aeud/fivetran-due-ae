@@ -27,7 +27,8 @@ func GetAvailableSteps() map[string]Step {
 			APIEnpointURL:       NewAnswerSetsAPIEnpointURL(),
 			PrimaryKey:          "id",
 			// MinCursorValue:      time.Now().Add(-2 * 365 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 2 years from now
-			MinCursorValue: time.Now().Add(-2 * 93 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 93 days from now
+			// MinCursorValue: time.Now().Add(-2 * 93 * 24 * time.Hour).Truncate(time.Hour).Format("2006-01-02T00:00:00.000Z"), // 93 days from now
+			MinCursorValue: time.Now().Add(-2 * time.Hour).Format("2006-01-02T15:04:05.000Z"), // 5 minutes age
 			PageSize:       100,
 		},
 		// DUEClientsLabel: {

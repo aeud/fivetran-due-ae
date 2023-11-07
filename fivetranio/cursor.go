@@ -20,7 +20,10 @@ func (s *State) GetCursorNextValue(stepName string) string {
 	return s.GetCursor(stepName).Next
 }
 
-func (s *State) SetCursorNextValue(stepName, val string) {
+func (s *State) SetCursorNextValue(stepName, val string) (updated bool) {
 	c := s.GetCursor(stepName)
+	previousValue := c.Next
 	c.Next = val
+	updated = previousValue != val
+	return
 }

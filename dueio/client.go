@@ -94,9 +94,12 @@ func (client *DUEAPIClient) ExecuteState(state *fivetranio.State) (data []map[st
 	if step.UseCursor {
 		if len(resp.Data) > 0 && !state.Debug {
 			lastElement := resp.Data[len(resp.Data)-1]
-			lastCursorVal := lastElement.Attributes[step.CursorAttribute]
-			state.SetCursorNextValue(step.Name, fmt.Sprintf("%v", lastCursorVal))
-			nextState, hasMore, _ = state.NextPageWithCursor(resp.Meta.PageCount)
+			newCursorValue := fmt.Sprintf("%v", lastElement.Attributes[step.CursorAttribute])
+			if updated := state.SetCursorNextValue(step.Name, newCursorValue); updated {
+				nextState, hasMore, _ = state.NextPageWithCursor(resp.Meta.PageCount)
+			} else {
+				nextState, hasMore, _ = state.NextStep()
+			}
 		} else {
 			nextState, hasMore, _ = state.NextStep()
 		}
