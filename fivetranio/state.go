@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-const CurrentStateVersion = "state1.0.3"
+const CurrentStateVersion = "state1.0.3" // When updated, it will impose a full refresh of the dataset. Use it very carefully!
 
 type State struct {
 	Debug           bool               `json:"debug"` // Debug will be used to shorten the pagination. It will only read the first page.
