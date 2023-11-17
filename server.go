@@ -37,13 +37,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Initial state
-	if state.Version != fivetranio.CurrentStateVersion {
-		if err := state.Reset(workEntities); err != nil {
-			fivetranio.NewFivetranCloudFunctionErrorResponse(err.Error()).Send(w)
-			return
-		}
-		state.ResetAllCursors()
-	} else if state.CurrentStep == "" {
+	if state.CurrentStep == "" {
 		if err := state.Reset(workEntities); err != nil {
 			fivetranio.NewFivetranCloudFunctionErrorResponse(err.Error()).Send(w)
 			return

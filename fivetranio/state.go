@@ -6,11 +6,8 @@ import (
 	"log"
 )
 
-const CurrentStateVersion = "state1.0.3" // When updated, it will impose a full refresh of the dataset. Use it very carefully!
-
 type State struct {
 	Debug           bool               `json:"debug"` // Debug will be used to shorten the pagination. It will only read the first page.
-	Version         string             `json:"version"`
 	CurrentStep     string             `json:"current_step"`
 	StepProgression string             `json:"step_progression"`
 	NextPageNumber  int                `json:"next_page_number"`
@@ -32,7 +29,6 @@ func (s *State) LogContent() {
 
 func (s *State) NextPageWithCursor(totalPageNumber int) (*State, bool, error) {
 	ns := &State{
-		Version:         s.Version,
 		Debug:           s.Debug,
 		CurrentStep:     s.CurrentStep,
 		Cursors:         s.Cursors,
@@ -45,7 +41,6 @@ func (s *State) NextPageWithCursor(totalPageNumber int) (*State, bool, error) {
 
 func (s *State) NextPage(pageNumber, totalPageNumber int) (*State, bool, error) {
 	ns := &State{
-		Version:         s.Version,
 		Debug:           s.Debug,
 		CurrentStep:     s.CurrentStep,
 		Cursors:         s.Cursors,
@@ -59,7 +54,6 @@ func (s *State) NextPage(pageNumber, totalPageNumber int) (*State, bool, error) 
 func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 	if len(s.RemainingSteps) == 0 {
 		newState = &State{
-			Version:        s.Version,
 			Debug:          s.Debug,
 			CurrentStep:    "",
 			Cursors:        s.Cursors,
@@ -69,7 +63,6 @@ func (s *State) NextStep() (newState *State, hasMore bool, err error) {
 		hasMore = false
 	} else {
 		newState = &State{
-			Version:        s.Version,
 			Debug:          s.Debug,
 			CurrentStep:    s.RemainingSteps[0],
 			Cursors:        s.Cursors,
@@ -89,7 +82,6 @@ func (s *State) Reset(steps []string) error {
 	s.CurrentStep = allSteps[0]
 	s.NextPageNumber = 1
 	s.RemainingSteps = allSteps[1:]
-	s.Version = CurrentStateVersion
 	return nil
 }
 
